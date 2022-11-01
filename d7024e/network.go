@@ -13,7 +13,7 @@ type Network struct {
 	Requester   *Contact
 	Recipient   *Contact
 	ContactList []Contact
-	FindValue   File
+	FindValue   *File
 	Key         string
 }
 
@@ -59,26 +59,27 @@ func (network *Network) SendFindContactMessage(contact *Contact) []Contact {
 	return *list
 }
 
-func (network *Network) SendFindDataMessage(hash string) {
+func (network *Network) SendFindDataMessage(hash *string) {
 	var response File
 	log.Println("sending message to find data to : ", network.Target.ID, network.Target.Address)
+	log.Println(hash)
 	client, err := rpc.DialHTTP("tcp", network.Target.Address)
 	if err != nil {
 		log.Println(err)
 	}
 	client.Call("Node.RPCFindValue", &hash, &response)
-	log.Println("this is the response: ", response)
+	log.Println("value found: ", string(response.Value))
 	if response.Value == nil {
 		log.Println("empty value")
 		return
 	}
-	network.FindValue = response
+	network.FindValue = &response
 }
 
 func (network *Network) SendStoreMessage(value *[]byte) {
 	var response File
 	data := File{
-		Key:   network.Key, // Generated hash key
+		Key:   &network.Key, // Generated hash key
 		Value: *value,
 	}
 

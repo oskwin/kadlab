@@ -21,7 +21,7 @@ func main() {
 	me := d7024e.NewContact(d7024e.NewRandomKademliaID(), GetOutboundIP().String()+":4000")
 	rt := d7024e.NewRoutingTable(me)
 	node.Kad.RT = rt
-	node.Kad.DataStore.Data = make(map[string]d7024e.File)
+	node.Kad.DataStore.Data = make(map[string]*d7024e.File)
 	myNet := new(d7024e.Network)
 	myNet.Requester = &me
 
@@ -60,9 +60,8 @@ func main() {
 	flag = false
 	for !flag {
 		// command line interface - [put] [get] [exit]
-		log.Println("choose a command to excecute....\n[join....]\n[put.....]\n[get.....]\n[exit....]")
+		log.Println("choose a command to excecute....\n[put.....]\n[get.....]\n[exit....]\n[list....]")
 		fmt.Scan(&input)
-		log.Println("=================================================================================================")
 
 		switch {
 
@@ -75,12 +74,11 @@ func main() {
 			fmt.Scan(&msg)
 			t := []byte(msg)
 			node.Kad.Store(&t)
-			log.Println("=================================================================================================")
 		case input == "get":
 			var hash string
-			fmt.Println("enter a hash key of the value you want....")
+			fmt.Println("enter a hash key of the value you want to fetch....")
 			fmt.Scan(&hash)
-			node.Kad.LookupData(hash)
+			node.Kad.LookupData(&hash)
 			log.Println(node.Kad.DataStore)
 			log.Println("=================================================================================================")
 		case input == "exit":

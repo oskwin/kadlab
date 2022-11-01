@@ -28,34 +28,30 @@ func (node Node) RPCFindContacts(network *Network, response *[]Contact) error {
 	}
 	// respond with a list of contacts
 	*response = list.contacts
-	PrintContacts(list.contacts)
 	return nil
 }
 
 // find and send the requested data from the RPC receiver
 func (node *Node) RPCFindValue(key *string, response *File) error {
 	log.Println("key accepted, serching storage for key-value pair")
-	log.Println(key, node.Kad.DataStore.Data)
 	if node.Kad.DataStore.Data == nil {
 		log.Println("storage empty....")
-		return errors.New("empty storage")
-	} else if node.Kad.DataStore.Data[*key].Value == nil {
+		return errors.New("storage empty")
+	} else if node.Kad.DataStore.Data[*key] == nil {
 		log.Println("empty slot in map, this node does not hold requested value....")
 		return errors.New("empty slot in map, this node does not hold requested value....")
 	} else {
-		*response = node.Kad.DataStore.Data[*key]
+		*response = *node.Kad.DataStore.Data[*key]
 		return nil
 	}
 }
 
 func (node *Node) RPCStoreData(data *File, response *File) error {
 	log.Println("RPC accepted....\nstore data at given key....")
-	log.Println(data)
 	if node.Kad.DataStore.Data == nil {
-		node.Kad.DataStore.Data = map[string]File{}
+		node.Kad.DataStore.Data = map[string]*File{}
 	}
-	node.Kad.DataStore.Data[data.Key] = *data
-	log.Println(node.Kad.DataStore)
+	node.Kad.DataStore.Data[*data.Key] = data
 	*response = *data
 	return nil
 }

@@ -28,26 +28,24 @@ func (kademlia *Kademlia) LookupContact(contact *Contact) {
 	kademlia.Lookup(contact.ID)
 }
 
-func (kademlia *Kademlia) LookupData(hash string) {
+func (kademlia *Kademlia) LookupData(hash *string) {
+	kademlia.Net.FindValue = nil
 	log.Println("performing a lookup for the k-closest nodes of the given hash....")
 	kademlia.Net.Requester = &kademlia.RT.me
-	kademlia.RT.GetClosest((hash)) // gives the closest nodes in ContactList
-	for i := range kademlia.Net.ContactList {
-		kademlia.Net.Target = &kademlia.Net.ContactList[i]
-		kademlia.Net.SendFindDataMessage(kademlia.Net.ContactList[i].ID.String())
+	candidates := kademlia.RT.GetClosest(*hash) // gives the closest nodes in ContactList
+	for i := range candidates {
+		kademlia.Net.Target = &candidates[i]
+		// target := candidates[i].ID.String()
+		kademlia.Net.SendFindDataMessage(hash)
 		if &kademlia.Net.FindValue != nil {
 			if kademlia.DataStore.Data == nil {
-				kademlia.DataStore.Data = map[string]File{}
+				kademlia.DataStore.Data = map[string]*File{}
 			}
-			if kademlia.Net.FindValue.Value == nil {
-				log.Println("no value found")
-			} else {
-				kademlia.DataStore.Data[hash] = kademlia.Net.FindValue
-				break
-			}
+			kademlia.DataStore.Data[*hash] = kademlia.Net.FindValue
+			break
+
 		}
 	}
-	log.Println(kademlia.DataStore)
 }
 
 func (kademlia *Kademlia) Store(value *[]byte) {

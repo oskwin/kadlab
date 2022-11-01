@@ -12,7 +12,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	node := new(d7024e.Node)
-	node.Kad.DataStore.Data = make(map[string]d7024e.File)
+	node.Kad.DataStore.Data = make(map[string]*d7024e.File)
 	me := d7024e.NewContact(d7024e.NewKademliaID("1111111100000000000000000000000000000000"), GetOutboundIP().String()+":4000")
 	rt := d7024e.NewRoutingTable(me)
 
