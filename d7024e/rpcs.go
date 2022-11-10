@@ -13,8 +13,6 @@ func (node Node) RPCPing(ping Ping, response *Contact) error {
 	*response = *ping.Target
 	return nil
 
-	// log.Println("contact not found....")
-	// return errors.New("requested ID not found") // TODO get the error msg to actually print
 }
 
 // finds the closest contacts for the target
@@ -22,7 +20,6 @@ func (node Node) RPCFindContacts(network *Network, response *[]Contact) error {
 	node.Kad.RT.AddContact(*network.Requester)
 	// find the responders closest nodes to the target and store it in a list
 	log.Println("RPC Accepted from ", network.Requester)
-	//node.AddedNodes = node.Kad.RT.FindClosestContacts(network.Target.ID, k)
 	list := ContactCandidates{
 		contacts: node.Kad.RT.FindClosestContacts(network.Target.ID, k),
 	}

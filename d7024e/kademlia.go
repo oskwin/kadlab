@@ -23,7 +23,6 @@ func (kademlia *Kademlia) LookupContact(contact *Contact) {
 
 	log.Println("getting my candidates closest to the target....")
 	kademlia.Candidates.contacts = kademlia.RT.FindClosestContacts(contact.ID, alpha)
-	//kademlia.Candidates.contacts = RemoveMe(*kademlia, kademlia.Candidates.contacts)
 
 	kademlia.Lookup(contact.ID)
 }
@@ -32,10 +31,9 @@ func (kademlia *Kademlia) LookupData(hash *string) {
 	kademlia.Net.FindValue = nil
 	log.Println("performing a lookup for the k-closest nodes of the given hash....")
 	kademlia.Net.Requester = &kademlia.RT.me
-	candidates := kademlia.RT.GetClosest(*hash) // gives the closest nodes in ContactList
-	for i := range candidates {
-		kademlia.Net.Target = &candidates[i]
-		// target := candidates[i].ID.String()
+	hashCandidates := kademlia.RT.FindClosestContacts(NewKademliaID(*hash), k) // gives the closest nodes in ContactList
+	for i := range hashCandidates {
+		kademlia.Net.Target = &hashCandidates[i]
 		kademlia.Net.SendFindDataMessage(hash)
 		if &kademlia.Net.FindValue != nil {
 			if kademlia.DataStore.Data == nil {
@@ -51,17 +49,15 @@ func (kademlia *Kademlia) LookupData(hash *string) {
 func (kademlia *Kademlia) Store(value *[]byte) {
 	log.Println("generating key to value....")
 	kademlia.Net.Key = NewRandomKademliaID().String()
+	log.Println("the key generated:", kademlia.Net.Key)
 	log.Println("performing a lookup to store a key-value pair in k-closest nodes to generated key....")
 	kademlia.Lookup(NewKademliaID(kademlia.Net.Key))
-	for i := range kademlia.Net.ContactList {
-		kademlia.Net.Target = &kademlia.Net.ContactList[i]
+	contacts := kademlia.Net.ContactList[:2]
+	for i := range contacts {
+		kademlia.Net.Target = &contacts[i]
 		kademlia.Net.SendStoreMessage(value)
 	}
 	log.Println("key-value pair stored in k-closest nodes to the hash key....")
-}
-
-func (rt *RoutingTable) GetClosest(obj string) []Contact {
-	return rt.FindClosestContacts(NewKademliaID(obj), k)
 }
 
 func (kademlia *Kademlia) Lookup(hash *KademliaID) {
@@ -88,7 +84,7 @@ func (kademlia *Kademlia) Lookup(hash *KademliaID) {
 			kademlia.RT.AddContact(kademlia.ClosestNodes.contacts[i])
 		}
 		kClosestNodes.nodes = kademlia.RT.FindClosestContacts(hash, k)
-		//kClosestNodes.nodes = RemoveMe(*kademlia, kClosestNodes.nodes)
+
 		for i := range kademlia.Candidates.contacts {
 			for j := range kClosestNodes.nodes {
 				if kademlia.Candidates.contacts[i].ID == kClosestNodes.nodes[j].ID {
@@ -103,9 +99,6 @@ func (kademlia *Kademlia) Lookup(hash *KademliaID) {
 			kademlia.Candidates.contacts = kClosestNodes.nodes
 			exitFlag = false // false
 		}
-		// for i := range kClosestNodes.nodes {
-		// 	log.Println(kClosestNodes.nodes[i], kClosestNodes.status[i])
-		// }
 		exitCounter = 0
 	}
 	kademlia.Net.ContactList = append(kClosestNodes.nodes)

@@ -34,7 +34,7 @@ func main() {
 	log.Println("welcome to node ", host, me.ID)
 
 	log.Println("adding the bootstrapnode....")
-	node.Kad.RT.AddContact(d7024e.NewContact(d7024e.NewKademliaID("1111111100000000000000000000000000000000"), "130.240.77.101:4000"))
+	node.Kad.RT.AddContact(d7024e.NewContact(d7024e.NewKademliaID("1111111100000000000000000000000000000000"), "130.240.77.15:4000"))
 
 	rpc.Register(node)
 	rpc.HandleHTTP()

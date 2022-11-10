@@ -62,7 +62,7 @@ func (network *Network) SendFindContactMessage(contact *Contact) []Contact {
 func (network *Network) SendFindDataMessage(hash *string) {
 	var response File
 	log.Println("sending message to find data to : ", network.Target.ID, network.Target.Address)
-	log.Println(hash)
+	log.Println(&hash)
 	client, err := rpc.DialHTTP("tcp", network.Target.Address)
 	if err != nil {
 		log.Println(err)
